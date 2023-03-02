@@ -1,4 +1,6 @@
-namespace BuildingComponents.Data
+using BuildingComponents.Models;
+
+namespace BuildingComponents.Services
 {
     public class WeatherForecastService
     {

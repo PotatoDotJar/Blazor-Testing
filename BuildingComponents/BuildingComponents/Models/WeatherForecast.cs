@@ -1,4 +1,4 @@
-namespace BuildingComponents.Data
+namespace BuildingComponents.Models
 {
     public class WeatherForecast
     {
