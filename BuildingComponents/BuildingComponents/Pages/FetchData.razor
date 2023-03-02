@@ -8,6 +8,8 @@
 
 <p>This component demonstrates fetching data from a service.</p>
 
+<input type="date" @onchange="@(async (e) => await UpdateForecast(DateTime.Parse(e.Value.ToString())))" value="@SelectedDate.ToString("yyyy-MM-dd")" />
+
 @if (forecasts == null)
 {
     <p><em>Loading...</em></p>
@@ -40,8 +42,18 @@ else
 @code {
     private WeatherForecast[]? forecasts;
 
+    private DateTime SelectedDate { get; set; } = DateTime.Now;
+
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await ForecastService.GetForecastAsync(DateOnly.FromDateTime(DateTime.Now));
+        await UpdateForecast();
+    }
+
+    protected async Task UpdateForecast(DateTime? newDate = null)
+    {
+        if (newDate != null)
+            SelectedDate = newDate.Value;
+
+        forecasts = await ForecastService.GetForecastAsync(DateOnly.FromDateTime(SelectedDate));
     }
 }
