@@ -11,5 +11,15 @@ namespace BuildingComponents.Data.Entities
         public string CategoryName { get; set; }
 
         public virtual ICollection<Post> Posts { get; set; }
+
+        public PostCategory()
+        {
+            Posts = new HashSet<Post>();
+        }
+
+        public override int GetHashCode()
+        {
+            return CategoryId.GetHashCode();
+        }
     }
 }

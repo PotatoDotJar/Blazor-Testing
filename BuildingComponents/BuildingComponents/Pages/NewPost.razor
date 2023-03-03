@@ -1,8 +1,117 @@
 ﻿@page "/newpost"
+@using BuildingComponents.Data.Entities;
+@using BuildingComponents.Services;
+@inject BlogService blogService;
+@inject NavigationManager navigation;
+@inject ILogger<NewPost> logger;
 
 <PageTitle>New Post</PageTitle>
 
+<div>
+    <div class="mb-3">
+        <label for="postTitle" class="form-label">Title</label>
+        <input type="text" class="form-control @(!TitleValid && ShowValidation ? "is-invalid" : null)" id="postTitle" aria-describedby="postTitleHelp" @bind="Post.Title">
+        <div id="postTitleHelp" class="form-text">Title of the post</div>
+        @if (!TitleValid && ShowValidation)
+        {
+            <div class="invalid-feedback">A title is required</div>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="postContent" class="form-label">Content</label>
+        <input type="text" class="form-control @(!ContentValid && ShowValidation ? "is-invalid" : null)" id="postContent" aria-describedby="postContentHelp" @bind="Post.Content">
+        <div id="postContentHelp" class="form-text">Content of the post</div>
+        @if (!ContentValid && ShowValidation)
+        {
+            <div class="invalid-feedback">Post content is required</div>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="postExistingCategories" class="form-label">Existing Categories</label>
+        <select class="form-select" @bind="ExistingCategoriesSelected" id="postExistingCategories" multiple>
+            @foreach (var kv in ExistingCategoryOptions)
+            {
+                <option value="@kv.Item1">@kv.Item2</option>
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="postNewCategories" class="form-label">New Categories</label>
+        <input type="text" class="form-control" id="postContent" @bind="NewCategories" />
+    </div>
+    <button class="btn btn-primary" @onclick="OnAddClicked">Add</button>
+</div>
 
 @code {
+    // Post to save
+    private Post Post { get; set; } = new();
 
+    private string NewCategories { get; set; } = string.Empty;
+
+    private int[] ExistingCategoriesSelected { get; set; } = Array.Empty<int>();
+    private string[] NewCategoriesSelected
+    {
+        get
+        {
+            return NewCategories.Split(",").Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)).ToArray();
+        }
+    }
+
+    private Tuple<int, string>[] ExistingCategoryOptions { get; set; } = Array.Empty<Tuple<int, string>>();
+
+    private bool TitleValid
+    {
+        get
+        {
+            return !string.IsNullOrEmpty(Post?.Title);
+        }
+    }
+
+    private bool ContentValid
+    {
+        get
+        {
+            return !string.IsNullOrEmpty(Post?.Content);
+        }
+    }
+
+    private bool ShowValidation = false;
+
+    private async Task OnAddClicked()
+    {
+        if (TitleValid && ContentValid)
+        {
+            var categoriesSelected = new HashSet<PostCategory>();
+
+            foreach (var category in blogService.GetCategoryByIds(ExistingCategoriesSelected))
+            {
+                categoriesSelected.Add(category);
+            }
+
+            foreach (var newCategory in NewCategoriesSelected)
+            {
+                var newOrExisting = await blogService.AddOrGetCategoryByName(newCategory);
+
+                if (newOrExisting != null)
+                {
+                    categoriesSelected.Add(newOrExisting);
+                }
+            }
+
+            var newPost = await blogService.CreatePost(Post, categoriesSelected);
+
+            logger.LogInformation($"New post id is {newPost.PostId}");
+
+            navigation.NavigateTo("/");
+        }
+        else
+        {
+            ShowValidation = true;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        ExistingCategoryOptions = blogService.GetExistingCategories().ToArray();
+    }
 }

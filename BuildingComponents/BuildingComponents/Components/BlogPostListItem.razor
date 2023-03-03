@@ -6,6 +6,10 @@
     {
         <p>@Post.Title</p>
         <p>@Post.Content</p>
+        @if (Post.Categories?.Any() ?? false)
+        {
+            <p>Tags: @string.Join(",", Post.Categories.Select(x => x.CategoryName))</p>
+        }
     }
 </li>
 

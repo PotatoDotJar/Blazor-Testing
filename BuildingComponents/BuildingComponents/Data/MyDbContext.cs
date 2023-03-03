@@ -8,7 +8,6 @@ namespace BuildingComponents.Data
     {
         public DbSet<Post> Posts { get; set; }
         public DbSet<PostCategory> Categories { get; set; }
-        public DbSet<PostCategories> PostCategories { get; set; }
 
         public string DbPath { get; }
 

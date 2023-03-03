@@ -7,5 +7,10 @@
         public string Content { get; set; }
 
         public virtual ICollection<PostCategory> Categories { get; set; }
+
+        public Post()
+        {
+            Categories = new HashSet<PostCategory>();
+        }
     }
 }
