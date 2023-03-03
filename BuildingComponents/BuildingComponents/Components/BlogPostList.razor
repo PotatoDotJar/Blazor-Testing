@@ -4,12 +4,12 @@
 
 @if(Posts != null)
 {
-    <ul>
+    <div class="list-group">
         @foreach (var post in Posts)
         {
             <BlogPostListItem Post="@post"></BlogPostListItem>
         }
-    </ul>
+    </div>
 }
 else
 {

@@ -1,19 +1,24 @@
 ﻿@using BuildingComponents.Data.Entities;
-<h3>BlogPostListItem</h3>
 
-<li>
-    @if (Post != null)
-    {
-        <p>@Post.Title</p>
+@if (Post != null)
+{
+    <a class="list-group-item list-group-item-action" @onclick="OnItemClick">
+        <p class="fw-bold">@Post.Title</p>
         <p>@Post.Content</p>
         @if (Post.Categories?.Any() ?? false)
         {
             <p>Tags: @string.Join(",", Post.Categories.Select(x => x.CategoryName))</p>
         }
-    }
-</li>
+    </a>
+}
+
 
 @code {
     [Parameter]
     public Post? Post { get; set; }
+
+    private void OnItemClick()
+    {
+        Console.WriteLine(Post.PostId + " Clicked");
+    }
 }
