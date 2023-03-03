@@ -1,0 +1,27 @@
+﻿@using BuildingComponents.Data.Entities;
+@using BuildingComponents.Services;
+@inject BlogService blogService;
+
+@if(Posts != null)
+{
+    <ul>
+        @foreach (var post in Posts)
+        {
+            <BlogPostListItem Post="@post"></BlogPostListItem>
+        }
+    </ul>
+}
+else
+{
+    <p>Loading posts...</p>
+}
+
+
+@code {
+    private IEnumerable<Post>? Posts { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Posts = blogService.GetBlogPosts();
+    }
+}

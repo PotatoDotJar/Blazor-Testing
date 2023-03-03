@@ -1,0 +1,15 @@
+﻿@using BuildingComponents.Data.Entities;
+<h3>BlogPostListItem</h3>
+
+<li>
+    @if (Post != null)
+    {
+        <p>@Post.Title</p>
+        <p>@Post.Content</p>
+    }
+</li>
+
+@code {
+    [Parameter]
+    public Post? Post { get; set; }
+}

@@ -1,3 +1,4 @@
+using BuildingComponents.Data;
 using BuildingComponents.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -10,10 +11,13 @@ namespace BuildingComponents
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddDbContext<MyDbContext>();
+
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
             builder.Services.AddSingleton<WeatherForecastService>();
+            builder.Services.AddTransient<BlogService>();
 
             var app = builder.Build();
 

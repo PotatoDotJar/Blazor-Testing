@@ -1,6 +1,8 @@
 ﻿@page "/fetchdata"
-@    using BuildingComponents.Data
-@inject WeatherForecastService ForecastService
+@using BuildingComponents.Models;
+@using BuildingComponents.Data;
+@using BuildingComponents.Services;
+@inject WeatherForecastService ForecastService;
 
 <PageTitle>Weather forecast</PageTitle>
 
@@ -40,7 +42,7 @@ else
 }
 
 @code {
-    private WeatherForecast[]? forecasts;
+    private IEnumerable<WeatherForecast>? forecasts;
 
     private DateTime SelectedDate { get; set; } = DateTime.Now;
 
