@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BuildingComponents.Data.Entities
 {
@@ -8,6 +10,7 @@ namespace BuildingComponents.Data.Entities
         public int CategoryId { get; set; }
 
         [Required]
+        [Column(TypeName = "varchar(50)")]
         public string CategoryName { get; set; }
 
         public virtual ICollection<Post> Posts { get; set; }

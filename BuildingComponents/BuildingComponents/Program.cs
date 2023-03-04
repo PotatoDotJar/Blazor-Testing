@@ -2,6 +2,7 @@ using BuildingComponents.Data;
 using BuildingComponents.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.EntityFrameworkCore;
 
 namespace BuildingComponents
 {
@@ -11,7 +12,10 @@ namespace BuildingComponents
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddDbContext<MyDbContext>();
+            builder.Services.AddDbContext<MyDbContext>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("MyDbContext"));
+            });
 
             // Add services to the container.
             builder.Services.AddRazorPages();

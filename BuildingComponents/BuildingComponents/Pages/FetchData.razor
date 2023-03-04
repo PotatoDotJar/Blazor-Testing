@@ -10,7 +10,7 @@
 
 <p>This component demonstrates fetching data from a service.</p>
 
-<input type="date" @onchange="@(async (e) => await UpdateForecast(DateTime.Parse(e.Value.ToString())))" value="@SelectedDate.ToString("yyyy-MM-dd")" />
+<input type="date" @bind="SelectedDate" @bind:format="yyyy-MM-dd" @bind:after="() => {}" />
 
 @if (forecasts == null)
 {
@@ -51,11 +51,8 @@ else
         await UpdateForecast();
     }
 
-    protected async Task UpdateForecast(DateTime? newDate = null)
+    private async Task UpdateForecast()
     {
-        if (newDate != null)
-            SelectedDate = newDate.Value;
-
         forecasts = await ForecastService.GetForecastAsync(DateOnly.FromDateTime(SelectedDate));
     }
 }
