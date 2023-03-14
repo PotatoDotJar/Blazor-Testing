@@ -11,6 +11,7 @@
 <p>This component demonstrates fetching data from a service.</p>
 
 @*<input type="date" @bind="SelectedDate" @bind:format="yyyy-MM-dd" @bind:after="UpdateForecast" />*@
+<input type="date" @onchange="@(async (e) => await OnSelectedDateChanged(DateTime.Parse(e.Value.ToString())))" value="@SelectedDate.ToString("yyyy-MM-dd")" />
 
 @if (forecasts == null)
 {
@@ -48,6 +49,12 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        await UpdateForecast();
+    }
+
+    public async Task OnSelectedDateChanged(DateTime newSelectedDate)
+    {
+        SelectedDate = newSelectedDate;
         await UpdateForecast();
     }
 
