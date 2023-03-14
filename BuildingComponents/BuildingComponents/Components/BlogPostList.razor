@@ -1,13 +1,14 @@
 ﻿@using BuildingComponents.Data.Entities;
 @using BuildingComponents.Services;
 @inject BlogService blogService;
+@inject NavigationManager navigation;
 
 @if(Posts != null)
 {
     <div class="list-group">
         @foreach (var post in Posts)
         {
-            <BlogPostListItem Post="@post" OnPostDelete="@OnPostDelete"></BlogPostListItem>
+            <BlogPostListItem Post="@post" OnPostEdit="@OnPostEdit" OnPostDelete="@OnPostDelete"></BlogPostListItem>
         }
     </div>
 }
@@ -22,21 +23,29 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        UpdatePosts();
+        await UpdatePosts();
     }
 
-    protected void UpdatePosts()
+    protected async Task UpdatePosts()
     {
-        Posts = blogService.GetBlogPosts();
+        Posts = await blogService.GetBlogPostsAsync();
+    }
+
+    protected void OnPostEdit(Post? postToEdit)
+    {
+        if (postToEdit != null)
+        {
+            navigation.NavigateTo($"/editpost/{postToEdit.PostId}");
+        }
     }
 
     protected async Task OnPostDelete(Post? postToDelete)
     {
         if (postToDelete != null)
         {
-            await blogService.DeletePost(postToDelete.PostId);
+            await blogService.DeletePostAsync(postToDelete.PostId);
         }
         
-        UpdatePosts();
+        await UpdatePosts();
     }
 }

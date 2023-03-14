@@ -57,7 +57,7 @@
         }
     }
 
-    private Tuple<int, string>[] ExistingCategoryOptions { get; set; } = Array.Empty<Tuple<int, string>>();
+    private IEnumerable<Tuple<int, string>> ExistingCategoryOptions { get; set; } = Enumerable.Empty<Tuple<int, string>>();
 
     private bool TitleValid
     {
@@ -83,14 +83,14 @@
         {
             var categoriesSelected = new HashSet<PostCategory>();
 
-            foreach (var category in blogService.GetCategoryByIds(ExistingCategoriesSelected))
+            foreach (var category in await blogService.GetCategoryByIdsAsync(ExistingCategoriesSelected))
             {
                 categoriesSelected.Add(category);
             }
 
             foreach (var newCategory in NewCategoriesSelected)
             {
-                var newOrExisting = await blogService.AddOrGetCategoryByName(newCategory);
+                var newOrExisting = await blogService.AddOrGetCategoryByNameAsync(newCategory);
 
                 if (newOrExisting != null)
                 {
@@ -98,7 +98,7 @@
                 }
             }
 
-            var newPost = await blogService.CreatePost(Post, categoriesSelected);
+            var newPost = await blogService.CreatePostAsync(Post, categoriesSelected);
 
             logger.LogInformation($"New post id is {newPost.PostId}");
 
@@ -110,8 +110,8 @@
         }
     }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        ExistingCategoryOptions = blogService.GetExistingCategories().ToArray();
+        ExistingCategoryOptions = await blogService.GetExistingCategoriesAsync();
     }
 }
