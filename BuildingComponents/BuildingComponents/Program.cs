@@ -20,7 +20,7 @@ namespace BuildingComponents
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
-            builder.Services.AddSingleton<WeatherForecastService>();
+            builder.Services.AddTransient<WeatherForecastService>();
             builder.Services.AddTransient<BlogService>();
 
             var app = builder.Build();

@@ -7,7 +7,7 @@
     <div class="list-group">
         @foreach (var post in Posts)
         {
-            <BlogPostListItem Post="@post"></BlogPostListItem>
+            <BlogPostListItem Post="@post" OnPostDelete="@OnPostDelete"></BlogPostListItem>
         }
     </div>
 }
@@ -20,8 +20,23 @@ else
 @code {
     private IEnumerable<Post>? Posts { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
+    {
+        UpdatePosts();
+    }
+
+    protected void UpdatePosts()
     {
         Posts = blogService.GetBlogPosts();
+    }
+
+    protected async Task OnPostDelete(Post? postToDelete)
+    {
+        if (postToDelete != null)
+        {
+            await blogService.DeletePost(postToDelete.PostId);
+        }
+        
+        UpdatePosts();
     }
 }

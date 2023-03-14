@@ -9,6 +9,7 @@
         {
             <p>Tags: @string.Join(",", Post.Categories.Select(x => x.CategoryName))</p>
         }
+        <button class="btn btn-warning" @onclick="OnDeleteClick">Delete</button>
     </a>
 }
 
@@ -17,8 +18,16 @@
     [Parameter]
     public Post? Post { get; set; }
 
+    [Parameter]
+    public EventCallback<Post> OnPostDelete { get; set; }
+
     private void OnItemClick()
     {
         Console.WriteLine(Post.PostId + " Clicked");
+    }
+
+    private async Task OnDeleteClick()
+    {
+        await OnPostDelete.InvokeAsync(Post);
     }
 }
