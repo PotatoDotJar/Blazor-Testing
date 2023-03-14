@@ -1,0 +1,27 @@
+﻿@page "/posts/newpost"
+@using BuildingComponents.Data.Entities;
+@using BuildingComponents.Services;
+@inject BlogService blogService;
+@inject NavigationManager navigation;
+@inject ILogger<NewPost> logger;
+
+<PageTitle>New Post</PageTitle>
+
+<h1>New Post</h1>
+<BlogPostForm Post="@Post" ButtonText="Add" OnFormSubmit="@OnAddClicked"></BlogPostForm>
+
+@code {
+    public Post Post { get; set; } = new();
+
+    private async Task OnAddClicked(Tuple<Post, HashSet<PostCategory>> parameters)
+    {
+        var post = parameters.Item1;
+        var categories = parameters.Item2;
+
+        var newPost = await blogService.CreatePostAsync(post, categories);
+
+        logger.LogInformation($"New post id is {newPost.PostId}");
+
+        navigation.NavigateTo("/posts");
+    }
+}

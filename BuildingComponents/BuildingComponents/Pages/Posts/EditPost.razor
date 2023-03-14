@@ -1,0 +1,55 @@
+﻿@page "/posts/editpost/{id:int}"
+@using BuildingComponents.Data.Entities;
+@using BuildingComponents.Services;
+@inject BlogService blogService;
+@inject NavigationManager navigation;
+@inject ILogger<NewPost> logger;
+
+<PageTitle>Edit Post</PageTitle>
+
+<h1>Edit Post - @PostTitle</h1>
+@if (Post != null)
+{
+    <BlogPostForm Post="@Post" ButtonText="Save" OnFormSubmit="@OnSaveClicked"></BlogPostForm>
+}
+else
+{
+    <p>Post with Id @Id does not exist.</p>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    // Post to edit
+    private Post? Post { get; set; }
+
+    private string PostTitle
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(Post?.Title))
+                return Post?.Title ?? string.Empty;
+            else
+                return Id.ToString();
+        }
+    }
+
+    private async Task OnSaveClicked(Tuple<Post, HashSet<PostCategory>> parameters)
+    {
+        var post = parameters.Item1;
+        var categories = parameters.Item2;
+
+        var updatedPost = await blogService.UpdatePostAsync(Id, post, categories);
+
+        logger.LogInformation($"Updated post id is {updatedPost.PostId}");
+
+        navigation.NavigateTo("/posts");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get existing post data
+        Post = await blogService.GetPostAsync(Id);
+    }
+}

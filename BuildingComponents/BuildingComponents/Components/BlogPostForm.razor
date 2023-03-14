@@ -1,11 +1,6 @@
-﻿@page "/newpost"
-@using BuildingComponents.Data.Entities;
+﻿@using BuildingComponents.Data.Entities;
 @using BuildingComponents.Services;
 @inject BlogService blogService;
-@inject NavigationManager navigation;
-@inject ILogger<NewPost> logger;
-
-<PageTitle>New Post</PageTitle>
 
 <div>
     <div class="mb-3">
@@ -19,7 +14,9 @@
     </div>
     <div class="mb-3">
         <label for="postContent" class="form-label">Content</label>
-        <input type="text" class="form-control @(!ContentValid && ShowValidation ? "is-invalid" : null)" id="postContent" aria-describedby="postContentHelp" @bind="Post.Content">
+        @*<input type="text" class="form-control @(!ContentValid && ShowValidation ? "is-invalid" : null)" id="postContent" aria-describedby="postContentHelp" @bind="Post.Content">*@
+        
+        <InputTextArea @bind-Value="@Post.Content" class="@(!ContentValid && ShowValidation ? "form-control is-invalid" : "form-control")" id="postContent" aria-describedby="postContentHelp"></InputTextArea>
         <div id="postContentHelp" class="form-text">Content of the post</div>
         @if (!ContentValid && ShowValidation)
         {
@@ -39,12 +36,18 @@
         <label for="postNewCategories" class="form-label">New Categories</label>
         <input type="text" class="form-control" id="postContent" @bind="NewCategories" />
     </div>
-    <button class="btn btn-primary" @onclick="OnAddClicked">Add</button>
+    <button class="btn btn-primary" @onclick="@OnButtonClick">@ButtonText</button>
 </div>
 
 @code {
-    // Post to save
-    private Post Post { get; set; } = new();
+    [Parameter]
+    public string ButtonText { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<Tuple<Post, HashSet<PostCategory>>> OnFormSubmit { get; set; }
+
+    [Parameter]
+    public Post? Post { get; set; }
 
     private string NewCategories { get; set; } = string.Empty;
 
@@ -77,41 +80,47 @@
 
     private bool ShowValidation = false;
 
-    private async Task OnAddClicked()
+    protected async Task OnButtonClick()
     {
-        if (TitleValid && ContentValid)
+        if (Post != null)
         {
-            var categoriesSelected = new HashSet<PostCategory>();
-
-            foreach (var category in await blogService.GetCategoryByIdsAsync(ExistingCategoriesSelected))
+            if (TitleValid && ContentValid)
             {
-                categoriesSelected.Add(category);
-            }
+                var categoriesSelected = new HashSet<PostCategory>();
 
-            foreach (var newCategory in NewCategoriesSelected)
-            {
-                var newOrExisting = await blogService.AddOrGetCategoryByNameAsync(newCategory);
-
-                if (newOrExisting != null)
+                foreach (var category in await blogService.GetCategoryByIdsAsync(ExistingCategoriesSelected))
                 {
-                    categoriesSelected.Add(newOrExisting);
+                    categoriesSelected.Add(category);
                 }
+
+                foreach (var newCategory in NewCategoriesSelected)
+                {
+                    var newOrExisting = await blogService.AddOrGetCategoryByNameAsync(newCategory);
+
+                    if (newOrExisting != null)
+                    {
+                        categoriesSelected.Add(newOrExisting);
+                    }
+                }
+
+                var callbackParams = new Tuple<Post, HashSet<PostCategory>>(Post, categoriesSelected);
+
+                await OnFormSubmit.InvokeAsync(callbackParams);
             }
-
-            var newPost = await blogService.CreatePostAsync(Post, categoriesSelected);
-
-            logger.LogInformation($"New post id is {newPost.PostId}");
-
-            navigation.NavigateTo("/");
-        }
-        else
-        {
-            ShowValidation = true;
+            else
+            {
+                ShowValidation = true;
+            }
         }
     }
 
     protected override async Task OnInitializedAsync()
     {
         ExistingCategoryOptions = await blogService.GetExistingCategoriesAsync();
+
+        if (Post?.Categories?.Any() ?? false)
+        {
+            ExistingCategoriesSelected = Post.Categories.Select(x => x.CategoryId).ToArray();
+        }
     }
 }
